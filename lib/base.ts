@@ -1,137 +1,36 @@
-const RPC = process.env.BASE_MAINNET_RPC || 'https://mainnet.base.org';
+// lib/base.ts
+import { ethers } from "ethers";
 
-type Tx = {
-  hash: `0x${string}`;
-  from: `0x${string}`;
-  to: `0x${string}` | null;
-  value: `0x${string}`;
-};
+// Base Mainnet RPC URL
+const BASE_RPC = "https://mainnet.base.org";
 
-type BlockResp = {
-  number: `0x${string}`;
-  transactions: Tx[];
-};
+// Ethers provider
+const provider = new ethers.JsonRpcProvider(BASE_RPC);
 
-export function hexToDec(hex: string): number {
-  return parseInt(hex, 16);
+/**
+ * Get the latest block with full transactions
+ */
+export async function getLatestBlockWithTxs() {
+  const block = await provider.getBlock("latest", true); // true = include transactions
+  if (!block) throw new Error("Failed to fetch block");
+
+  return {
+    blockNumberHex: ethers.toBeHex(block.number),
+    blockNumberDec: block.number,
+    transactions: block.transactions,
+  };
 }
 
-export function toEth(weiHex: string): string {
-  const wei = BigInt(weiHex);
-  const ether = wei * 1000000n / 1000000000000000000n;
-  const intPart = ether / 1000000n;
-  const frac = (ether % 1000000n).toString().padStart(6, '0');
-  let out = `${intPart}.${frac}`;
-  out = out.replace(/\.?(0+)$/, (m, g1) =>
-    g1.length === frac.length ? '' : m.replace(/0+$/, '')
-  );
-  return out;
-}
-
+/**
+ * Normalize an Ethereum address to lowercase
+ */
 export function normalizeAddress(addr: string) {
   return addr.toLowerCase();
 }
 
-export function short(addr: string) {
-  if (!addr) return '';
-  return `${addr.slice(0, 8)}…${addr.slice(-6)}`;
+/**
+ * Convert wei (BigInt string) to ETH
+ */
+export function toEth(wei: string) {
+  return ethers.formatEther(wei);
 }
-
-async function rpc(method: string, params: any[]) {
-  const r = await fetch(RPC, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      jsonrpc: '2.0',
-      id: 1,
-      method,
-      params
-    }),
-    cache: 'no-store'
-  });
-  if (!r.ok) throw new Error(`RPC HTTP ${r.status}`);
-  const j = await r.json();
-  if (j.error) throw new Error(j.error.message || 'RPC error');
-  return j.result;
-}
-
-export async function getLatestBlockWithTxs() {
-  const blockNumberHex: string = await rpc('eth_blockNumber', []);
-  const block: BlockResp = await rpc('eth_getBlockByNumber', [blockNumberHex, true]);
-  return {
-    blockNumberHex,
-    blockNumberDec: hexToDec(blockNumberHex),
-    transactions: block.transactions
-  };
-}
-
-
-
-
-// const RPC = process.env.BASE_MAINNET_RPC || 'https://mainnet.base.org';
-
-// type Tx = {
-//   hash: `0x${string}`;
-//   from: `0x${string}`;
-//   to: `0x${string}` | null;
-//   value: `0x${string}`;
-// };
-
-// type BlockResp = {
-//   number: `0x${string}`;
-//   transactions: Tx[];
-// };
-
-// export function hexToDec(hex: string): number {
-//   return parseInt(hex, 16);
-// }
-
-// export function toEth(weiHex: string): string {
-//   // wei hex to decimal ETH string (6 dp)
-//   const wei = BigInt(weiHex);
-//   const ether = wei * 1000000n / 1000000000000000000n; // 1e6 precision
-//   const intPart = ether / 1000000n;
-//   const frac = (ether % 1000000n).toString().padStart(6, '0');
-//   let out = `${intPart}.${frac}`;
-//   // trim trailing zeros
-//   out = out.replace(/\.?(0+)$/, (m, g1) => g1.length === frac.length ? '' : m.replace(/0+$/, ''));
-//   return out;
-// }
-
-// export function normalizeAddress(addr: string) {
-//   return addr.toLowerCase();
-// }
-
-// export function short(addr: string) {
-//   if (!addr) return '';
-//   return `${addr.slice(0, 8)}…${addr.slice(-6)}`;
-// }
-
-// async function rpc(method: string, params: any[]) {
-//   const r = await fetch(RPC, {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify({
-//       jsonrpc: '2.0',
-//       id: 1,
-//       method,
-//       params
-//     }),
-//     // Important: do not cache
-//     cache: 'no-store'
-//   });
-//   if (!r.ok) throw new Error(`RPC HTTP ${r.status}`);
-//   const j = await r.json();
-//   if (j.error) throw new Error(j.error.message || 'RPC error');
-//   return j.result;
-// }
-
-// export async function getLatestBlockWithTxs() {
-//   const blockNumberHex: string = await rpc('eth_blockNumber', []);
-//   const block: BlockResp = await rpc('eth_getBlockByNumber', [blockNumberHex, true]);
-//   return {
-//     blockNumberHex,
-//     blockNumberDec: hexToDec(blockNumberHex),
-//     transactions: block.transactions
-//   };
-// }
