@@ -1,16 +1,21 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getLatestBlockWithTxs, normalizeAddress, toEth } from '@/lib/base';
+import { NextRequest, NextResponse } from "next/server";
+import { getLatestBlockWithTxs, normalizeAddress, toEth } from "@/lib/base";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '10', 10), 1), 50);
-  const address = searchParams.get('address');
+  const limit = Math.min(
+    Math.max(parseInt(searchParams.get("limit") || "10", 10), 1),
+    50
+  );
+  const address = searchParams.get("address");
   const filter = address ? normalizeAddress(address) : null;
 
   try {
-    const { blockNumberHex, blockNumberDec, transactions } = await getLatestBlockWithTxs();
+    const { blockNumberHex, blockNumberDec, transactions } =
+      await getLatestBlockWithTxs();
+
     const rows = transactions
       .filter((t) => {
         if (!filter) return true;
@@ -24,15 +29,15 @@ export async function GET(req: NextRequest) {
         from: t.from,
         to: t.to,
         valueWei: t.value,
-        valueEth: toEth(t.value)
+        valueEth: toEth(t.value.toString()),
       }));
 
     return NextResponse.json({
       blockNumber: blockNumberHex,
       blockNumberDecimal: blockNumberDec,
-      txs: rows
+      txs: rows,
     });
   } catch (e: any) {
-    return NextResponse.json({ error: e?.message || 'failed' }, { status: 500 });
+    return NextResponse.json({ error: e?.message || "failed" }, { status: 500 });
   }
 }
