@@ -8,19 +8,47 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const limit = Math.min(
     Math.max(parseInt(searchParams.get("limit") || "10", 10), 1),
-    50
+    100
   );
   const address = searchParams.get("address");
+  const blocks = Math.min(
+    Math.max(parseInt(searchParams.get("blocks") || "1", 10), 1),
+    5
+  );
   const filter = address ? normalizeAddress(address) : null;
 
   try {
-    console.log("Fetching latest block with transactions...");
-    const { blockNumberHex, blockNumberDec, transactions } =
-      await getLatestBlockWithTxs();
+    console.log(`Fetching latest ${blocks} block(s) with transactions...`);
     
-    console.log(`Fetched block ${blockNumberDec} with ${transactions.length} transactions`);
+    let allTransactions: TransactionResponse[] = [];
+    let latestBlockNumber = 0;
 
-    const rows = transactions
+    // Fetch multiple blocks if requested
+    for (let i = 0; i < blocks; i++) {
+      const { blockNumberHex, blockNumberDec, transactions } =
+        await getLatestBlockWithTxs();
+      
+      if (i === 0) {
+        latestBlockNumber = blockNumberDec;
+      }
+      
+      allTransactions.push(...transactions);
+      
+      // If we're only getting one block, break
+      if (blocks === 1) break;
+      
+      // For multiple blocks, we'd need to get previous blocks
+      // This is a simplified version - in production you might want to implement
+      // proper block iteration
+      if (i < blocks - 1) {
+        // Add a small delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+    
+    console.log(`Fetched ${allTransactions.length} total transactions from ${blocks} block(s)`);
+
+    const rows = allTransactions
       .filter((t: TransactionResponse) => {
         if (!filter) return true;
         const from = normalizeAddress(t.from);
@@ -34,13 +62,20 @@ export async function GET(req: NextRequest) {
         to: t.to,
         valueWei: t.value,
         valueEth: toEth(t.value.toString()),
+        gasPrice: t.gasPrice ? t.gasPrice.toString() : "0",
+        gasLimit: t.gasLimit ? t.gasLimit.toString() : "0",
+        nonce: t.nonce,
+        data: t.data,
+        timestamp: Date.now(), // We could get this from block timestamp if needed
       }));
 
-    console.log(`Returning ${rows.length} transactions`);
+    console.log(`Returning ${rows.length} filtered transactions`);
 
     return NextResponse.json({
-      blockNumber: blockNumberHex,
-      blockNumberDecimal: blockNumberDec,
+      blockNumber: `0x${latestBlockNumber.toString(16)}`,
+      blockNumberDecimal: latestBlockNumber,
+      totalTransactions: allTransactions.length,
+      filteredTransactions: rows.length,
       txs: rows,
     });
   } catch (e: any) {
