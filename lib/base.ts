@@ -1,9 +1,7 @@
 import { ethers, Block, TransactionResponse } from "ethers";
 
 const BASE_RPC = process.env.BASE_MAINNET_RPC || "https://mainnet.base.org";
-const provider = new ethers.JsonRpcProvider(BASE_RPC, undefined, {
-  timeout: 10000, // 10 second timeout
-});
+const provider = new ethers.JsonRpcProvider(BASE_RPC);
 
 /**
  * Get latest block with transactions
