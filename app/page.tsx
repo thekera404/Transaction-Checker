@@ -59,7 +59,7 @@ export default function Home() {
       {error && (
         <div className="text-red-600 mb-4">
           <p>Error: {error}</p>
-          <p>Please check your environment variables and try again.</p>
+          <p>Please try refreshing the page or check your internet connection.</p>
         </div>
       )}
       

@@ -1,7 +1,7 @@
 import { ethers, Block, TransactionResponse } from "ethers";
 
-// Use default Base RPC without requiring environment variable
-const BASE_RPC = "https://mainnet.base.org";
+// Use a more reliable Base RPC endpoint
+const BASE_RPC = "https://base-mainnet.public.blastapi.io";
 const provider = new ethers.JsonRpcProvider(BASE_RPC);
 
 /**
@@ -9,8 +9,12 @@ const provider = new ethers.JsonRpcProvider(BASE_RPC);
  */
 export async function getLatestBlockWithTxs() {
   try {
+    console.log("Connecting to Base RPC:", BASE_RPC);
     const block = await provider.getBlock("latest", true); // full txs
     if (!block) throw new Error("Failed to fetch block");
+
+    console.log("Successfully fetched block:", block.number);
+    console.log("Block has transactions:", block.transactions.length);
 
     return {
       blockNumberHex: ethers.toBeHex(block.number),
@@ -19,6 +23,10 @@ export async function getLatestBlockWithTxs() {
     };
   } catch (error) {
     console.error("Error fetching block:", error);
+    console.error("Error details:", {
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     
     // Provide more specific error messages
     if (error instanceof Error) {
@@ -28,6 +36,8 @@ export async function getLatestBlockWithTxs() {
         throw new Error("Network error - please check your connection");
       } else if (error.message.includes("rate limit")) {
         throw new Error("Rate limit exceeded - please try again later");
+      } else if (error.message.includes("fetch")) {
+        throw new Error("Failed to connect to Base network");
       }
     }
     

@@ -14,8 +14,11 @@ export async function GET(req: NextRequest) {
   const filter = address ? normalizeAddress(address) : null;
 
   try {
+    console.log("Fetching latest block with transactions...");
     const { blockNumberHex, blockNumberDec, transactions } =
       await getLatestBlockWithTxs();
+    
+    console.log(`Fetched block ${blockNumberDec} with ${transactions.length} transactions`);
 
     const rows = transactions
       .filter((t: TransactionResponse) => {
@@ -33,6 +36,8 @@ export async function GET(req: NextRequest) {
         valueEth: toEth(t.value.toString()),
       }));
 
+    console.log(`Returning ${rows.length} transactions`);
+
     return NextResponse.json({
       blockNumber: blockNumberHex,
       blockNumberDecimal: blockNumberDec,
@@ -40,6 +45,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (e: any) {
     console.error("API Error:", e);
+    console.error("Error stack:", e.stack);
     
     // Provide more specific error messages
     let errorMessage = "Failed to fetch data";
