@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getLatestBlockWithTxs, normalizeAddress, toEth } from "@/lib/base";
+import { TransactionResponse } from "ethers";
 
 export const dynamic = "force-dynamic";
 
@@ -22,14 +23,14 @@ export async function GET(req: NextRequest) {
       await getLatestBlockWithTxs();
 
     const rows = transactions
-      .filter((t) => {
+      .filter((t: TransactionResponse) => {
         if (!filter) return true;
         const from = normalizeAddress(t.from);
         const to = t.to ? normalizeAddress(t.to) : null;
         return from === filter || to === filter;
       })
       .slice(0, limit)
-      .map((t) => ({
+      .map((t: TransactionResponse) => ({
         hash: t.hash,
         from: t.from,
         to: t.to,

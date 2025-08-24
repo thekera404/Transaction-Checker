@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers, Block, TransactionResponse } from "ethers";
 
 const BASE_RPC = process.env.BASE_MAINNET_RPC || "https://mainnet.base.org";
 const provider = new ethers.JsonRpcProvider(BASE_RPC, undefined, {
@@ -16,7 +16,7 @@ export async function getLatestBlockWithTxs() {
     return {
       blockNumberHex: ethers.toBeHex(block.number),
       blockNumberDec: block.number,
-      transactions: block.transactions,
+      transactions: block.transactions as TransactionResponse[],
     };
   } catch (error) {
     console.error("Error fetching block:", error);
