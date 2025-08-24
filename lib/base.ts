@@ -14,7 +14,7 @@ export async function getLatestBlockWithTxs() {
     return {
       blockNumberHex: ethers.toBeHex(block.number),
       blockNumberDec: block.number,
-      transactions: block.transactions as TransactionResponse[],
+      transactions: block.transactions as unknown as TransactionResponse[],
     };
   } catch (error) {
     console.error("Error fetching block:", error);
