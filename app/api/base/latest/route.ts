@@ -14,11 +14,6 @@ export async function GET(req: NextRequest) {
   const filter = address ? normalizeAddress(address) : null;
 
   try {
-    // Check if environment variable is set
-    if (!process.env.BASE_MAINNET_RPC) {
-      console.warn("BASE_MAINNET_RPC environment variable not set, using default");
-    }
-
     const { blockNumberHex, blockNumberDec, transactions } =
       await getLatestBlockWithTxs();
 

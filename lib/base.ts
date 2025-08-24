@@ -1,6 +1,7 @@
 import { ethers, Block, TransactionResponse } from "ethers";
 
-const BASE_RPC = process.env.BASE_MAINNET_RPC || "https://mainnet.base.org";
+// Use default Base RPC without requiring environment variable
+const BASE_RPC = "https://mainnet.base.org";
 const provider = new ethers.JsonRpcProvider(BASE_RPC);
 
 /**

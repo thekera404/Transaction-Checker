@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 
-const appBase = process.env.APP_BASE_URL || '';
+// Use default base URL for Farcaster frames
+const appBase = 'https://transaction-checker-iota.vercel.app';
 
 function frameHtml() {
   const img = `${appBase}/api/frame/image`;

@@ -38,23 +38,25 @@ cd base-farcaster-tx-watcher
 pnpm install   # or npm/yarn
 ```
 
-### 2) Environment
-Create a `.env.local` file in the root directory:
+### 2) Environment (Optional)
+The application uses default values and doesn't require environment variables to run.
+
+For local development, you can optionally create a `.env.local` file:
 ```bash
-# Create .env.local file
+# Create .env.local file (optional)
 touch .env.local
 ```
 
-Add the following environment variables:
+Add the following environment variables (optional):
 ```bash
-# Base Mainnet RPC URL (required)
+# Base Mainnet RPC URL (optional - defaults to https://mainnet.base.org)
 BASE_MAINNET_RPC=https://mainnet.base.org
 
-# App Base URL for Farcaster Frames (required for production)
+# App Base URL for Farcaster Frames (optional - defaults to localhost:3000)
 APP_BASE_URL=http://localhost:3000
 ```
 
-**Note:** For production deployment, make sure to set `APP_BASE_URL` to your actual domain (e.g., `https://yourdomain.com`).
+**Note:** The application works out of the box with default values. Environment variables are only needed if you want to customize the RPC endpoint or base URL.
 
 ### 3) Dev
 ```bash
@@ -107,9 +109,9 @@ Make sure `APP_BASE_URL` is correctly set to a public URL so Warpcast/clients ca
 ### Common Issues:
 
 1. **"Failed to fetch data" error**
-   - Check if `BASE_MAINNET_RPC` is set in your `.env.local` file
    - Verify your internet connection
    - Try using a different RPC provider
+   - Check if the Base network is accessible
 
 2. **TypeScript/JSX errors**
    - Make sure you have the latest Node.js version
@@ -117,9 +119,8 @@ Make sure `APP_BASE_URL` is correctly set to a public URL so Warpcast/clients ca
    - Clear `.next` cache: `rm -rf .next && npm run dev`
 
 3. **Frame image not loading**
-   - Ensure `APP_BASE_URL` is set correctly
-   - For local development, use `http://localhost:3000`
-   - For production, use your actual domain URL
+   - For local development, the default URL should work
+   - For production, the app automatically uses the correct domain
 
 4. **Network timeout errors**
    - The app has a 10-second timeout for RPC calls
