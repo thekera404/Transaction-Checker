@@ -1,20 +1,39 @@
 import { ethers } from "ethers";
 
 const BASE_RPC = process.env.BASE_MAINNET_RPC || "https://mainnet.base.org";
-const provider = new ethers.JsonRpcProvider(BASE_RPC);
+const provider = new ethers.JsonRpcProvider(BASE_RPC, undefined, {
+  timeout: 10000, // 10 second timeout
+});
 
 /**
  * Get latest block with transactions
  */
 export async function getLatestBlockWithTxs() {
-  const block = await provider.getBlock("latest", true); // full txs
-  if (!block) throw new Error("Failed to fetch block");
+  try {
+    const block = await provider.getBlock("latest", true); // full txs
+    if (!block) throw new Error("Failed to fetch block");
 
-  return {
-    blockNumberHex: ethers.toBeHex(block.number),
-    blockNumberDec: block.number,
-    transactions: block.transactions,
-  };
+    return {
+      blockNumberHex: ethers.toBeHex(block.number),
+      blockNumberDec: block.number,
+      transactions: block.transactions,
+    };
+  } catch (error) {
+    console.error("Error fetching block:", error);
+    
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      if (error.message.includes("timeout")) {
+        throw new Error("Request timeout - please try again");
+      } else if (error.message.includes("network")) {
+        throw new Error("Network error - please check your connection");
+      } else if (error.message.includes("rate limit")) {
+        throw new Error("Rate limit exceeded - please try again later");
+      }
+    }
+    
+    throw error;
+  }
 }
 
 /**

@@ -39,13 +39,22 @@ pnpm install   # or npm/yarn
 ```
 
 ### 2) Environment
-Copy `.env.example` to `.env.local`:
+Create a `.env.local` file in the root directory:
 ```bash
-cp .env.example .env.local
+# Create .env.local file
+touch .env.local
 ```
-Fill:
-- `BASE_MAINNET_RPC` – e.g. `https://mainnet.base.org` or your provider RPC
-- `APP_BASE_URL` – The public URL where this app is hosted (e.g. `https://yourdomain.com`) used for frame image absolute URLs
+
+Add the following environment variables:
+```bash
+# Base Mainnet RPC URL (required)
+BASE_MAINNET_RPC=https://mainnet.base.org
+
+# App Base URL for Farcaster Frames (required for production)
+APP_BASE_URL=http://localhost:3000
+```
+
+**Note:** For production deployment, make sure to set `APP_BASE_URL` to your actual domain (e.g., `https://yourdomain.com`).
 
 ### 3) Dev
 ```bash
@@ -90,6 +99,31 @@ Returns the latest block data plus filtered txs.
 - `POST /api/frame` handles the **Refresh** button and returns the same frame (stateless).
 
 Make sure `APP_BASE_URL` is correctly set to a public URL so Warpcast/clients can render the image.
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues:
+
+1. **"Failed to fetch data" error**
+   - Check if `BASE_MAINNET_RPC` is set in your `.env.local` file
+   - Verify your internet connection
+   - Try using a different RPC provider
+
+2. **TypeScript/JSX errors**
+   - Make sure you have the latest Node.js version
+   - Run `npm install` to ensure all dependencies are installed
+   - Clear `.next` cache: `rm -rf .next && npm run dev`
+
+3. **Frame image not loading**
+   - Ensure `APP_BASE_URL` is set correctly
+   - For local development, use `http://localhost:3000`
+   - For production, use your actual domain URL
+
+4. **Network timeout errors**
+   - The app has a 10-second timeout for RPC calls
+   - Try using a different RPC provider if issues persist
 
 ---
 

@@ -13,6 +13,11 @@ export async function GET(req: NextRequest) {
   const filter = address ? normalizeAddress(address) : null;
 
   try {
+    // Check if environment variable is set
+    if (!process.env.BASE_MAINNET_RPC) {
+      console.warn("BASE_MAINNET_RPC environment variable not set, using default");
+    }
+
     const { blockNumberHex, blockNumberDec, transactions } =
       await getLatestBlockWithTxs();
 
@@ -38,6 +43,20 @@ export async function GET(req: NextRequest) {
       txs: rows,
     });
   } catch (e: any) {
-    return NextResponse.json({ error: e?.message || "failed" }, { status: 500 });
+    console.error("API Error:", e);
+    
+    // Provide more specific error messages
+    let errorMessage = "Failed to fetch data";
+    if (e.message?.includes("network")) {
+      errorMessage = "Network error - please check your internet connection";
+    } else if (e.message?.includes("timeout")) {
+      errorMessage = "Request timeout - please try again";
+    } else if (e.message?.includes("rate limit")) {
+      errorMessage = "Rate limit exceeded - please try again later";
+    } else if (e.message) {
+      errorMessage = e.message;
+    }
+    
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
