@@ -144,7 +144,7 @@ base-farcaster-tx-watcher/
 │     ├─ base/
 │     │  └─ latest/route.ts
 │     └─ frame/
-│        ├─ image/route.ts
+│        ├─ image/route.tsx
 │        └─ route.ts
 │
 ├─ lib/

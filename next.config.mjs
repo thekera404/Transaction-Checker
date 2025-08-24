@@ -1,5 +1,21 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Ensure clean builds
+  experimental: {
+    forceSwcTransforms: true,
+  },
+  
+  // Build configuration
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  
+  // Force clean builds
+  generateBuildId: async () => {
+    return `build-${Date.now()}`;
+  },
+  
+  // Headers for Farcaster
   async headers() {
     return [
       {
