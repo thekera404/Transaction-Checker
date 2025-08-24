@@ -4,16 +4,13 @@ export const runtime = 'edge';
 
 export async function GET() {
   try {
-    // You can customize the text dynamically if needed
-    const text = "Base Farcaster TX Checker";
-
     return new ImageResponse(
       (
         <div
           style={{
             fontSize: 48,
             color: 'white',
-            backgroundColor: 'black',
+            backgroundColor: '#1a1a1a',
             width: '100%',
             height: '100%',
             display: 'flex',
@@ -22,7 +19,7 @@ export async function GET() {
             fontFamily: 'Arial, sans-serif'
           }}
         >
-          {text}
+          🔵 Base Transaction Checker
         </div>
       ),
       {
